@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "title": "Organize Home Office",
+      "desc": "Sort through all documents, declutter the desk, and arrange office supplies. Ensure cables are managed properly and create a more efficient workspace.",
+      "done": false,
+      "owner": "default",
+      "marker": null,
+      "contributors": ["all"]
+    },
+    {
+      "title": "Plan Weekly Meals",
+      "desc": "Create a meal plan for the upcoming week, including breakfast, lunch, and dinner. Make a grocery list based on the planned meals and shop for all necessary ingredients.",
+      "done": false,
+      "owner": "default",
+      "marker": null,
+      "contributors": ["all"]
+    },
+    {
+      "title": "Update Resume and LinkedIn Profile",
+      "desc": "Review and update your resume with recent job experiences and skills. Ensure your LinkedIn profile reflects the changes and highlights your latest achievements.",
+      "done": false,
+      "owner": "default",
+      "marker": null,
+      "contributors": ["all"]
+    },
+    {
+      "title": "Read a Book on Personal Development",
+      "desc": "Choose a book on personal development that interests you. Set aside 30 minutes each day to read and take notes on key insights and actionable advice.",
+      "done": false,
+      "owner": "default",
+      "marker": null,
+      "contributors": ["all"]
+    }
+  ],
+  "users": []
+}
