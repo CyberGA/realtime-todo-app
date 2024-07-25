@@ -6,11 +6,11 @@ import { Fragment, useEffect, useState } from "react";
 import AddTask from "./add-task";
 import { useRouter } from "next/navigation";
 import { IResponse } from "@/definitions/response.interface";
+import EditTask from "./edit-task";
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showForm, setShowForm] = useState<boolean>(false);
   const router = useRouter();
 
   const getTodos = async (): Promise<void> => {
@@ -61,52 +61,44 @@ const TodoList: React.FC = () => {
             <h1 className="uppercase text-3xl text-black/50 font-bold">
               Tasks List
             </h1>
-            <button
-              onClick={() => setShowForm((showForm) => !showForm)}
-              className="text-white text-xs bg-primary-100 px-2 py-1 rounded-lg"
-            >
-              {showForm ? "Close Form" : "Add Task"}
-            </button>
-          </div>
-          <div
-            className={`absolute z-10 left-6 right-6 top-[100px] ${
-              showForm ? "block" : "hidden"
-            } duration-300 ease-in`}
-          >
             <AddTask />
           </div>
           <div className="relative z-0 flex flex-col gap-2">
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className="flex flex-col border px-4 py-2 rounded-lg"
+                className="relative z-0 flex flex-col border px-4 py-2 rounded-lg"
               >
-                <div className="w-fit rounded-full px-4 border border-primary-100 py-1">
+                <div className="relative z-0 w-fit rounded-full px-4 border border-primary-100 py-1">
                   <p className="text-xs">
-                    {task.owner == "default" ? "DEFAULT" : `Creator: ${task.owner}`}
+                    {task.owner == "default"
+                      ? "DEFAULT"
+                      : `Creator: ${task.owner}`}
                   </p>
                 </div>
                 {task.marker && (
-                  <p className="text-xs">Completed by: {task.marker}</p>
+                  <p className="relative z-0 text-xs">
+                    Completed by: {task.marker}
+                  </p>
                 )}
-                <h2 className="text-lg font-semibold my-2 border-b">{task.title}</h2>
+                <h2 className="relative z-0 text-lg font-semibold my-2 border-b">
+                  {task.title}
+                </h2>
                 <p
-                  className={`text-sm ${
+                  className={`relative z-0 text-sm ${
                     task.done ? "line-through" : "no-underline"
                   }`}
                 >
                   {task.desc}
                 </p>
-                <div className="flex justify-end">
+                <div className="relative z-0 flex justify-end">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       className="default:ring-2"
                       checked={task.done}
                     />
-                    <button className="text-black/60 text-xs px-2 py-1 rounded-lg">
-                      Edit
-                    </button>
+                    <EditTask task={task} />
                     <button className="text-white text-xs bg-red-500 px-2 py-1 rounded-lg">
                       Delete
                     </button>
