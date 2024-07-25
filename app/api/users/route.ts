@@ -16,7 +16,6 @@ export async function GET() {
         username: user.username,
       };
     });
-    console.log(resData);
 
     const response: IResponse = {
       message: "Users retrieved successfully",

@@ -28,7 +28,6 @@ export default function Identification(): React.JSX.Element {
       })
       
       const res: IResponse = resp.data
-      console.log(res)
       if (res.status != 201 && res.message != "user already exists") {
         setError(res.message);
       } else {

@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       data: tasks,
     };
+    
     return Response.json(response);
   } catch (err) {
     let response: IResponse;
