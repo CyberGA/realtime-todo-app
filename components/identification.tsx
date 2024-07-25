@@ -21,22 +21,23 @@ export default function Identification(): React.JSX.Element {
     try {
         setLoading(loading => true)
       const username = userNameRef.current?.value;
-      const resp = await axios.post("/api/user/create", {username}, {
+      const resp = await axios.post("/api/users/create", {username}, {
         headers: {
             'Content-Type': 'application/json'
           }
       })
+      
       const res: IResponse = resp.data
       console.log(res)
-      if (res.status != 201) {
+      if (res.status != 201 && res.message != "user already exists") {
         setError(res.message);
       } else {
-        document.cookie = `username=${username}; max-age=172800; path=/`
-        userNameRef.current.value = ""
-        router.push("/todos")
+        sessionStorage.setItem("username", username);
+        userNameRef.current.value = "";
+        router.push("/todos");
       }
     } catch (error) {
-        setError('Failed to save user');
+        setError('Identification failed');
     } finally {
         setLoading(loading => false)
     }
