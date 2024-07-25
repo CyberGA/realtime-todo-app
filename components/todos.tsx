@@ -2,7 +2,7 @@
 
 import { ITask } from "@/definitions/task.interface";
 import axios from "axios";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AddTask from "./add-task";
 import { useRouter } from "next/navigation";
 import { IResponse } from "@/definitions/response.interface";
@@ -52,24 +52,24 @@ const TodoList: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative z-0 w-full max-w-2xl mx-auto mt-10 px-6 py-12 rounded-lg border">
+    <div className="relative z-0 w-full max-w-2xl mx-auto mt-10 px-6 py-12 rounded-lg">
       {loading ? (
         <p className="italic font-light my-20 text-center">Loading tasks...</p>
       ) : (
         <>
-          <div className="relative z-0 flex items-center justify-between gap-3 my-1">
+          <div className="realtive z-0 flex items-center justify-between gap-3 my-1">
             <h1 className="uppercase text-3xl text-black/50 font-bold">
               Tasks List
             </h1>
             <AddTask />
           </div>
-          <div className="relative z-0 flex flex-col gap-2">
+          <div className=" flex flex-col gap-2 mt-4">
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className="relative z-0 flex flex-col border px-4 py-2 rounded-lg"
+                className=" flex flex-col border px-4 py-2 rounded-lg"
               >
-                <div className="relative z-0 w-fit rounded-full px-4 border border-primary-100 py-1">
+                <div className=" w-fit rounded-full px-4 border border-primary-100 py-1">
                   <p className="text-xs">
                     {task.owner == "default"
                       ? "DEFAULT"
@@ -92,17 +92,7 @@ const TodoList: React.FC = () => {
                   {task.desc}
                 </p>
                 <div className="relative z-0 flex justify-end">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="default:ring-2"
-                      checked={task.done}
-                    />
                     <EditTask task={task} />
-                    <button className="text-white text-xs bg-red-500 px-2 py-1 rounded-lg">
-                      Delete
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}

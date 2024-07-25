@@ -113,7 +113,7 @@ export default function AddTask(): React.JSX.Element {
         {showForm ? "Close Form" : "Add Task"}
       </button>
       <div
-        className={`absolute z-10 left-6 right-6 top-[100px] ${
+        className={`bg-white absolute z-20 left-6 right-6 top-24 ${
           showForm ? "block" : "hidden"
         } duration-300 ease-in`}
       >
@@ -143,12 +143,12 @@ export default function AddTask(): React.JSX.Element {
                 className="border px-4 h-20 resize-none py-3 text-base w-full rounded-lg hover:bg-black/5"
               />
               <div className="w-full flex gap-2 items-center">
-                <div className="border w-full px-4 py-2 text-base rounded-lg hover:bg-black/5">
+                <div className="border w-full px-4 py-2 text-base rounded-lg cursor-pointer *:hover:cursor-pointer">
                   <select
                     name="contributors"
                     value={formData.contributors}
                     onChange={handleFormData}
-                    className="w-full outline-none focus-visible:outline-none "
+                    className="w-full outline-none focus-visible:outline-none cursor-pointer"
                   >
                     <option value="">Select a contributor</option>
                     {users
