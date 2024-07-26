@@ -133,7 +133,7 @@ const TodoList: React.FC = () => {
                   </p>
                 </div>
                 {task.marker && (
-                  <p className="pl-2 text-xs font-semibold underline underline-offset-2">
+                  <p className="pl-1 text-xs font-semibold underline underline-offset-2">
                     Completed by: {task.marker}
                   </p>
                 )}
