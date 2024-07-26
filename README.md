@@ -73,8 +73,12 @@ User 1 and User 2 collaborate on a simple to-do list. Both users can:
 3. Set up environment variables:
    Create a `.env` file with the following content
    ```sh
-    NEXT_PUBLIC_PUSHER_APP_KEY=your_pusher_app_key
-    NEXT_PUBLIC_PUSHER_CLUSTER=your_pusher_cluster
+   NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+   MONGODB_URI=""
+   PUSHER_APP_ID=""
+   PUSHER_SECRET=""
+   NEXT_PUBLIC_PUSHER_KEY=""
+   PUSHER_KEY=""
    ```
 
 ### Running the Application
