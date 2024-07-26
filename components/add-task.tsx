@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
 import { ITask } from "@/definitions/task.interface";
 import { IResponse } from "@/definitions/response.interface";
-import { useRouter } from "next/navigation";
 import { IUser } from "@/definitions/user.interface";
+import axios from "@/lib/axios";
 
 export default function AddTask(): React.JSX.Element {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [users, setUsers] = useState<Array<IUser>>([]);
-  const router = useRouter();
 
   const [formData, setFormData] = useState<Omit<ITask, "id">>({
     title: "",
@@ -36,7 +34,6 @@ export default function AddTask(): React.JSX.Element {
     >
   ): void => {
     if (e.target.name === "contributors") {
-      console.log(e.target.value);
       const selectedContributors = [...formData.contributors, e.target.value];
       setFormData({
         ...formData,
@@ -50,21 +47,17 @@ export default function AddTask(): React.JSX.Element {
     });
   };
 
-  const getAllUsers = async (): Promise<void> => {
+  const getCollaborators = useCallback(async (): Promise<void> => {
     try {
-      const resp = await axios.get("/api/users", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const resp = await axios.get("/api/users");
+      const currentUser = sessionStorage.getItem("username");
       const resData: IResponse = resp.data;
-      console.log(resData.data);
       if (resData.status == 200) {
         const allUsers: IUser[] = resData.data;
-        setUsers(allUsers);
+        setUsers(allUsers.filter((user) => user.username != currentUser));
       }
     } catch (error) {}
-  };
+  }, []);
 
   const submitHandler = async (
     e: React.FormEvent<HTMLFormElement>
@@ -79,20 +72,21 @@ export default function AddTask(): React.JSX.Element {
     try {
       setLoading((loading) => true);
       const data = formData;
-      const username: string | null = sessionStorage.getItem("username");
-      if (!username) {
-        router.push("/");
-        return;
-      }
+      const username: string = sessionStorage.getItem("username") as string;
       data.owner = username;
-      console.log(data);
-      const resp = await axios.post("/api/todos/add", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const resp = await axios.post("/api/todos/add", data);
       const res: IResponse = resp.data;
-      console.log(res);
+      if (res.status == 201) {
+        setFormData({
+          title: "",
+          desc: "",
+          done: false,
+          owner: "",
+          marker: null,
+          contributors: [],
+        });
+        setShowForm(showForm => false)
+      }
     } catch (error) {
       setError("Could not create task");
     } finally {
@@ -101,8 +95,8 @@ export default function AddTask(): React.JSX.Element {
   };
 
   useEffect(() => {
-    getAllUsers();
-  }, []);
+    getCollaborators();
+  }, [getCollaborators]);
 
   return (
     <>
@@ -113,11 +107,11 @@ export default function AddTask(): React.JSX.Element {
         {showForm ? "Close Form" : "Add Task"}
       </button>
       <div
-        className={`bg-white absolute z-20 left-6 right-6 top-24 ${
+        className={`bg-white absolute z-20 left-6 right-6 top-10 ${
           showForm ? "block" : "hidden"
         } duration-300 ease-in`}
       >
-        <div className="w-full max-w-2xl mx-auto my-2 px-6 py-12 bg-white rounded-lg border shadow-md">
+        <div className="w-full max-w-2xl mx-auto px-6 py-12 bg-white rounded-lg border shadow-md">
           <form onSubmit={submitHandler} className="">
             <h1 className="text-4xl font-bold text-black/60">New Task</h1>
             {error && (

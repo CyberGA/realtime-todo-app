@@ -1,5 +1,5 @@
 import { IResponse } from "@/definitions/response.interface";
-import { connectDatabase } from "../lib/mongoose.setup";
+import { connectDatabase, disconnectDatabase } from "../lib/mongoose.setup";
 import User from "../models/user.schema.model";
 import { IUser } from "@/definitions/user.interface";
 
@@ -12,7 +12,7 @@ export async function GET() {
 
     const resData: IUser[] = users.map((user) => {
       return {
-        id: user.id,
+        id: user.id.toString(),
         username: user.username,
       };
     });
@@ -31,5 +31,7 @@ export async function GET() {
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }

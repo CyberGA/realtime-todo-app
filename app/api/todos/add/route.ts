@@ -1,6 +1,7 @@
 import { IResponse } from "@/definitions/response.interface";
-import { connectDatabase } from "../../lib/mongoose.setup";
+import { connectDatabase, disconnectDatabase } from "../../lib/mongoose.setup";
 import Task from "../../models/task.schema.model";
+import pusher from "../../models/pusher.model";
 
 export async function POST(req: Request) {
   await connectDatabase();
@@ -25,26 +26,34 @@ export async function POST(req: Request) {
     });
     await task.save();
 
+    const respData = {
+      id: task._id.toString(),
+      title,
+      desc,
+      done,
+      owner,
+      marker,
+      contributors,
+    };
+
     const response: IResponse = {
       message: "Task saved successfully",
       status: 201,
-      data: {
-        title,
-        desc,
-        done,
-        owner,
-        marker,
-        contributors,
-      },
+      data: respData,
     };
+    pusher.trigger("TODO_CHANNEL", "ADD_UPDATE_TODO_EVENT", {
+      message: `${JSON.stringify(respData)}\n\n`,
+    });
     return Response.json(response);
   } catch (err) {
     let response: IResponse;
     response = {
-      message: "Request failed",
+      message: "Could not create the task",
       status: 500,
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import axios from 'axios';
 import { IResponse } from "@/definitions/response.interface";
 import { useRouter } from "next/navigation";
+import axios from "@/lib/axios";
 
 export default function Identification(): React.JSX.Element {
   const [error, setError] = useState<string>("");
@@ -11,37 +11,37 @@ export default function Identification(): React.JSX.Element {
   const userNameRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
 
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>): Promise<void>  => {
+  const submitHandler = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
-        setError("")
-      if (!userNameRef.current?.value) {
-        setError("Username is required");
-          return;
+    setError("");
+    if (!userNameRef.current?.value) {
+      setError("Username is required");
+      return;
     }
     try {
-        setLoading(loading => true)
+      setLoading((loading) => true);
       const username = userNameRef.current?.value;
-      const resp = await axios.post("/api/users/create", {username}, {
-        headers: {
-            'Content-Type': 'application/json'
-          }
-      })
-      
-      const res: IResponse = resp.data
-      if (res.status != 201 && res.message != "user already exists") {
+      const resp = await axios.post("/api/users/create", { username });
+
+      const res: IResponse = resp.data;
+      if (res.status !== 201 && res.status !== 200) {
         setError(res.message);
       } else {
         sessionStorage.setItem("username", username);
+        sessionStorage.setItem("id", res.data?.id);
         userNameRef.current.value = "";
         router.push("/todos");
       }
     } catch (error) {
-        setError('Identification failed');
+      console.log(error)
+      setError("Identification failed");
     } finally {
-        setLoading(loading => false)
+      setLoading((loading) => false);
     }
   };
-    
+
   return (
     <div className="w-full max-w-md mx-auto mt-10 px-6 py-12 rounded-lg border shadow-md">
       <form onSubmit={submitHandler} className="">
@@ -65,7 +65,7 @@ export default function Identification(): React.JSX.Element {
             disabled={loading}
             className="w-fit px-4 py-3 text-white text-base bg-primary-100 rounded-lg cursor-pointer disabled:cursor-not-allowed"
           >
-            { loading ? "loading.." : "Continue"}
+            {loading ? "loading.." : "Continue"}
           </button>
         </div>
       </form>

@@ -1,8 +1,9 @@
 import { type NextRequest } from "next/server";
 import { IResponse } from "@/definitions/response.interface";
-import { connectDatabase } from "../lib/mongoose.setup";
+import { connectDatabase, disconnectDatabase } from "../lib/mongoose.setup";
 import Task from "../models/task.schema.model";
 import { IData } from "@/definitions/database.interface";
+import pusher from "../models/pusher.model";
 
 export async function GET(req: NextRequest) {
   await connectDatabase();
@@ -18,17 +19,39 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const defaultTasks: IData[] = await Task.find({ owner: "default" });
-    const ownerTasks: IData[] = await Task.find({ owner: "default" });
-    const userTasks: IData[] = await Task.find({ contributors: username });
-    const tasks = defaultTasks.concat(ownerTasks).concat(userTasks);
+    const defaultTasks = await Task.find({
+      owner: "admin",
+    });
+    const userTasks = await Task.find({ owner: username});
+    const otherTasks = await Task.find({
+      contributors: { $in: [username] },
+    });
+    const tasks = defaultTasks
+      .concat(userTasks)
+      .concat(otherTasks)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+    const respData: IData[] = tasks.map((task) => {
+      return {
+        id: task._id.toString(),
+        title: task.title,
+        desc: task.desc,
+        done: task.done,
+        owner: task.owner,
+        marker: task.marker,
+        contributors: task.contributors,
+      };
+    });
 
     const response: IResponse = {
       message: "Tasks retrieved successfully",
       status: 200,
-      data: tasks,
+      data: respData,
     };
-    
+
     return Response.json(response);
   } catch (err) {
     let response: IResponse;
@@ -38,6 +61,8 @@ export async function GET(req: NextRequest) {
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }
 
@@ -57,20 +82,43 @@ export async function DELETE(req: NextRequest) {
   try {
     const task = await Task.findByIdAndDelete(id);
 
+    if (!task) {
+      const response: IResponse = {
+        message: "Task not found",
+        status: 404,
+        data: null,
+      };
+      return Response.json(response);
+    }
+
+    const respData = {
+      id,
+      title: task.title,
+      desc: task.desc,
+      done: task.done,
+      owner: task.owner,
+    };
+
     const response: IResponse = {
       message: "Task deleted successfully",
       status: 200,
       data: task,
     };
 
+    pusher.trigger("TODO_CHANNEL", "DELETE_TODO_EVENT", {
+      message: `${JSON.stringify(respData)}\n\n`,
+    });
+
     return Response.json(response);
   } catch (err) {
     let response: IResponse;
     response = {
-      message: "Request failed",
+      message: "Could not delete task",
       status: 500,
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }

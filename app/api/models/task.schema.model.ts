@@ -7,9 +7,11 @@ const TaskSchema: Schema = new Schema({
   title: { type: String, required: true },
   desc: { type: String, required: true },
   done: { type: Boolean, default: false },
-  owner: { type: String, default: "default" },
+  owner: { type: String, default: "admin" },
   marker: { type: String, default: null },
   contributors: { type: [String], default: [] },
+}, {
+  timestamps: true,
 });
 
 export default mongoose.models.Task ||

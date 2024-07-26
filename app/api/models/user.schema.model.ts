@@ -7,6 +7,8 @@ export interface IStoreUser extends Omit<IUser, "id">, Document {
 
 const UserSchema: Schema = new Schema({
   username: { type: String, required: true },
+}, {
+  timestamps: true,
 });
 
 export default mongoose.models.User ||

@@ -1,5 +1,5 @@
 import { IResponse } from "@/definitions/response.interface";
-import { connectDatabase } from "../../lib/mongoose.setup";
+import { connectDatabase, disconnectDatabase } from "../../lib/mongoose.setup";
 import User from "../../models/user.schema.model";
 
 export async function POST(req: Request) {
@@ -13,14 +13,25 @@ export async function POST(req: Request) {
     };
     return Response.json(response);
   }
+  if (username == "admin") {
+    const response: IResponse = {
+      message: "Username not allowed",
+      status: 403,
+      data: null,
+    };
+    return Response.json(response);
+  }
 
   try {
-    const userExits = await User.findOne({ username: username });
-    if (userExits) {
+    const existingUser = await User.findOne({ username: username });
+    if (existingUser) {
       const response: IResponse = {
-        message: `user already exists`,
-        status: 400,
-        data: null,
+        message: `Login Successful`,
+        status: 200,
+        data: {
+          id: existingUser._id.toString(),
+          username,
+        },
       };
       return Response.json(response);
     }
@@ -28,10 +39,15 @@ export async function POST(req: Request) {
     const user = new User({ username });
     await user.save();
 
+    const respData = {
+      id: user._id.toString(),
+      username: user.username,
+    };
+
     const response: IResponse = {
       message: `${username} has been registered successfully`,
       status: 201,
-      data: user,
+      data: respData,
     };
     return Response.json(response);
   } catch (err) {
@@ -42,5 +58,7 @@ export async function POST(req: Request) {
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }

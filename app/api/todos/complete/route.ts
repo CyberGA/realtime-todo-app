@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
 import { IResponse } from "@/definitions/response.interface";
-import { connectDatabase } from "../../lib/mongoose.setup";
+import { connectDatabase, disconnectDatabase } from "../../lib/mongoose.setup";
 import Task from "../../models/task.schema.model";
-import { IData } from "@/definitions/database.interface";
+import pusher from "../../models/pusher.model";
 
 export async function POST(req: NextRequest) {
   await connectDatabase();
@@ -32,11 +32,21 @@ export async function POST(req: NextRequest) {
     task.done = true;
     await task.save();
 
+    const respData = {
+      id,
+      done: true,
+      marker: user,
+    };
+
     const response: IResponse = {
       message: "Task completed successfully",
       status: 200,
-      data: task,
+      data: respData,
     };
+
+    pusher.trigger("TODO_CHANNEL", "COMPLETE_TODO_EVENT", {
+      message: `${JSON.stringify(respData)}\n\n`,
+    });
 
     return Response.json(response);
   } catch (err) {
@@ -47,5 +57,7 @@ export async function POST(req: NextRequest) {
       data: null,
     };
     return Response.json(response);
+  } finally {
+    await disconnectDatabase();
   }
 }
